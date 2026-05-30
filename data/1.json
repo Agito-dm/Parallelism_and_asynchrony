@@ -1,0 +1,17 @@
+{
+  "args": {}, 
+  "data": "", 
+  "files": {}, 
+  "form": {}, 
+  "headers": {
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", 
+    "Accept-Encoding": "deflate, gzip, br", 
+    "Accept-Language": "en-US,en;q=0.5", 
+    "Cookie": "euConsent=true; BCPermissionLevel=PERSONAL; BC_GDPR=11111; fhCookieConsent=true; gdpr-source=GB; gdpr_consent=YES; beget=begetok; SOCS=CAISNQgEEitib3FfaWRlbnRpdHlmcm9udGVuZHVpc2VydmVyXzIwMjMwNzIzLjA5X3AwGgJlbiACGgYIgMSBpgY", 
+    "Host": "httpbin.org", 
+    "User-Agent": "TelegramBot (like TwitterBot)", 
+    "X-Amzn-Trace-Id": "Root=1-69e0ec2a-3157742401cfc9343c7862d2"
+  }, 
+  "origin": "149.154.161.218", 
+  "url": "https://httpbin.org/delay/1"
+}
