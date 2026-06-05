@@ -4,6 +4,7 @@
 - Day 1 — асинхронная загрузка страниц через `aiohttp`
 - Day 2 — парсинг HTML и извлечение данных через `BeautifulSoup`
 - Day 3 — очередь URL, управление конкурентностью, глубина обхода и фильтрация ссылок
+- Day 4 — rate limiting, robots.txt, crawl-delay, User-Agent, jitter, exponential backoff и мониторинг скорости
 
 
 
@@ -25,6 +26,12 @@ src/
     crawler_queue.py
     semaphore_manager.py
     demo.py
+  
+  crawler_day4/
+    crawler.py
+    rate_limiter.py
+    robots_parser.py
+    demo.py
 
 tests/
   test_crawler.py
@@ -32,6 +39,14 @@ tests/
   test_day3_queue.py
   test_day3_semaphore.py
   test_day3_crawler.py
+  test_day4_structure.py
+  test_day4_rate_limiter.py
+  test_day4_crawler_rate_integration.py
+  test_day4_robots_parser.py
+  test_day4_crawler_robots_integration.py
+  test_day4_crawler_crawl_delay.py
+  test_day4_crawler_backoff.py
+  test_day4_user_agent.py
 
 data/
   day3_results.json
