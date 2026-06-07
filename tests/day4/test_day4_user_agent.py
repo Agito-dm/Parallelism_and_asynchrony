@@ -38,6 +38,7 @@ async def test_day4_fetch_url_sends_user_agent_header(monkeypatch):
     crawler = AsyncCrawler(
         max_concurrent=1,
         user_agent="MyBot/1.0",
+        respect_robots=False,
     )
     fake_session = FakeSession()
 
@@ -59,6 +60,7 @@ async def test_day4_fetch_and_parse_uses_user_agent_fetch_url(monkeypatch):
     crawler = AsyncCrawler(
         max_concurrent=1,
         user_agent="ParserBot/2.0",
+        respect_robots=False,
     )
     fake_session = FakeSession()
 

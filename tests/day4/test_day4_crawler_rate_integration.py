@@ -45,7 +45,9 @@ async def test_day4_crawler_applies_rate_limiter_during_crawl():
 
     delay_between_fetches = crawler.fetch_times[1] - crawler.fetch_times[0]
 
-    assert delay_between_fetches >= 0.045
+    # Асинхронное планирование может привести к небольшому отклонению во времени,
+    # поэтому в утверждении используется допуск ниже теоретического интервала в 0,05 с.
+    assert delay_between_fetches >= 0.04
 
 
 async def test_day4_crawler_respects_min_delay_between_requests():

@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import random
+from contextvars import ContextVar
 from time import perf_counter
 
 import aiohttp
@@ -82,6 +83,10 @@ class AsyncCrawler(BaseAsyncCrawler):
 
         self._crawl_delay_times: dict[str, float] = {}
         self._crawl_delay_locks: dict[str, asyncio.Lock] = {}
+        self._request_policy_depth: ContextVar[int] = ContextVar(
+            "request_policy_depth",
+            default=0,
+        )
 
     def _reset_crawl_state(self) -> None:
         super()._reset_crawl_state()
@@ -94,8 +99,9 @@ class AsyncCrawler(BaseAsyncCrawler):
         self._crawl_delay_times.clear()
         self._crawl_delay_locks.clear()
         self.backoff_count = 0
+        self._request_policy_depth.set(0)
 
-    async def fetch_url(self, url: str) -> str:
+    async def _fetch_url_once(self, url: str) -> str:
         async with self._semaphore:
             logger.info("Start loading URL: %s", url)
 
@@ -136,6 +142,16 @@ class AsyncCrawler(BaseAsyncCrawler):
                 )
 
             return ""
+
+    async def fetch_url(self, url: str) -> str:
+        if self._request_policy_depth.get() > 0:
+            return await self._fetch_url_once(url)
+
+        return await self._execute_request_with_policy(
+            url=url,
+            operation=self._fetch_url_once,
+            failure_factory=lambda: "",
+        )
     
     def _get_crawl_delay_lock(self, domain: str) -> asyncio.Lock:
         if domain not in self._crawl_delay_locks:
@@ -205,7 +221,6 @@ class AsyncCrawler(BaseAsyncCrawler):
         
         reason = f"Blocked by robots.txt for user-agent {self.user_agent}"
         self.blocked_urls[url] = reason
-        self.queue.mark_failed(url, reason)
 
         logger.info("Blocked by robots.txt: %s", url)
 
@@ -228,37 +243,8 @@ class AsyncCrawler(BaseAsyncCrawler):
 
         self.backoff_count += 1
         await asyncio.sleep(delay)
-
-
-    async def _fetch_with_backoff(self, url: str) -> dict:
-        last_page_data: dict | None = None
-
-        for attempt in range(self.max_retries + 1):
-            await self._wait_before_request(url)
-            self._record_request()
-
-            try:
-                page_data = await self.fetch_and_parse(url)
-            except Exception as error:
-                if attempt >= self.max_retries:
-                    raise error
-
-                await self._sleep_before_retry(attempt)
-                continue
-
-            if not self._page_has_fetch_error(page_data):
-                return page_data
-
-            last_page_data = page_data
-
-            if attempt >= self.max_retries:
-                return page_data
-
-            await self._sleep_before_retry(attempt)
-
-        if last_page_data is not None:
-            return last_page_data
-
+    
+    def _make_failed_page_data(self, url: str) -> dict:
         return {
             "url": url,
             "title": "",
@@ -272,20 +258,85 @@ class AsyncCrawler(BaseAsyncCrawler):
             "errors": ["Failed to fetch HTML"],
         }
 
+
+    def _request_result_is_successful(self, result) -> bool:
+        if isinstance(result, str):
+            return bool(result)
+
+        if isinstance(result, dict):
+            return not self._page_has_fetch_error(result)
+
+        return result is not None
+
+
+    async def _execute_request_with_policy(
+        self,
+        url: str,
+        operation,
+        failure_factory,
+    ):
+        is_allowed = await self._is_allowed_by_robots(url)
+
+        if not is_allowed:
+            return failure_factory()
+
+        last_result = None
+
+        for attempt in range(self.max_retries + 1):
+            await self._wait_before_request(url)
+            self._record_request()
+
+            current_depth = self._request_policy_depth.get()
+            token = self._request_policy_depth.set(current_depth + 1)
+
+            try:
+                result = await operation(url)
+            except Exception as error:
+                if attempt >= self.max_retries:
+                    raise error
+
+                await self._sleep_before_retry(attempt)
+                continue
+
+            finally:
+                self._request_policy_depth.reset(token)
+
+            if self._request_result_is_successful(result):
+                return result
+
+            last_result = result
+
+            if attempt >= self.max_retries:
+                return result
+
+            await self._sleep_before_retry(attempt)
+
+        if last_result is not None:
+            return last_result
+
+        return failure_factory()
+
+    async def _fetch_with_backoff(self, url: str) -> dict:
+        return await self._execute_request_with_policy(
+            url=url,
+            operation=self.fetch_and_parse,
+            failure_factory=lambda: self._make_failed_page_data(url),
+        )
+
     async def _crawl_single_url(self, url: str) -> dict | None:
         try:
             async with self.semaphore_manager.limit_for(url):
-                is_allowed = await self._is_allowed_by_robots(url)
-
-                if not is_allowed:
-                    return None
-
                 page_data = await self._fetch_with_backoff(url)
 
         except Exception as error:
             error_message = f"{type(error).__name__}: {error}"
             self.failed_urls[url] = error_message
             self.queue.mark_failed(url, error_message)
+            return None
+
+        if url in self.blocked_urls:
+            reason = self.blocked_urls[url]
+            self.queue.mark_failed(url, reason)
             return None
 
         errors = page_data.get("errors", [])

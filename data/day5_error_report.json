@@ -1,0 +1,63 @@
+{
+  "rate_stats": {
+    "requests_per_second": 1000.0,
+    "effective_requests_per_second": 1000.0,
+    "current_requests_per_second": 7,
+    "average_delay": 8.388571430779328e-05,
+    "blocked_by_robots": 0,
+    "total_requests": 7,
+    "backoff_count": 0
+  },
+  "error_report": {
+    "error_stats": {
+      "errors_by_type": {
+        "TransientError": 4,
+        "PermanentError": 1
+      },
+      "successful_retries": 1,
+      "failed_after_retries": 1,
+      "average_retry_delay": 0.13333333333333333,
+      "permanent_error_urls": [
+        "https://example.com/missing-404"
+      ],
+      "total_error_events": 5,
+      "final_failures": 2
+    },
+    "error_history": [
+      {
+        "url": "https://example.com/missing-404",
+        "type": "PermanentError",
+        "message": "Permanent HTTP error: 404 | url=https://example.com/missing-404 | status_code=404",
+        "status_code": 404
+      },
+      {
+        "url": "https://example.com/rate-limited-429",
+        "type": "TransientError",
+        "message": "Transient HTTP error: 429 | url=https://example.com/rate-limited-429 | status_code=429",
+        "status_code": 429
+      }
+    ],
+    "permanent_errors": {
+      "https://example.com/missing-404": "Permanent HTTP error: 404 | url=https://example.com/missing-404 | status_code=404"
+    },
+    "retry_delays": [
+      0.1,
+      0.1,
+      0.2
+    ]
+  },
+  "processed_urls": [
+    "https://example.com/success",
+    "https://example.com/temporary-503"
+  ],
+  "failed_urls": {
+    "https://example.com/missing-404": "Failed to fetch HTML",
+    "https://example.com/rate-limited-429": "Failed to fetch HTML"
+  },
+  "http_calls": {
+    "https://example.com/success": 1,
+    "https://example.com/temporary-503": 2,
+    "https://example.com/missing-404": 1,
+    "https://example.com/rate-limited-429": 3
+  }
+}

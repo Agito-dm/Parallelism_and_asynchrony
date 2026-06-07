@@ -5,6 +5,7 @@
 - Day 2 — парсинг HTML и извлечение данных через `BeautifulSoup`
 - Day 3 — очередь URL, управление конкурентностью, глубина обхода и фильтрация ссылок
 - Day 4 — rate limiting, robots.txt, crawl-delay, User-Agent, jitter, exponential backoff и мониторинг скорости
+- Day 5 — классификация ошибок, RetryStrategy, автоматические повторы, HTTP-статусы, таймауты, логирование и статистика ошибок
 
 
 
@@ -32,22 +33,22 @@ src/
     rate_limiter.py
     robots_parser.py
     demo.py
+  
+  crawler_day5/
+    __init__.py
+    crawler.py
+    errors.py
+    retry_strategy.py
+    demo.py
 
 tests/
-  test_crawler.py
-  test_day2_parser.py
-  test_day3_queue.py
-  test_day3_semaphore.py
-  test_day3_crawler.py
-  test_day4_structure.py
-  test_day4_rate_limiter.py
-  test_day4_crawler_rate_integration.py
-  test_day4_robots_parser.py
-  test_day4_crawler_robots_integration.py
-  test_day4_crawler_crawl_delay.py
-  test_day4_crawler_backoff.py
-  test_day4_user_agent.py
+  day1/
+  day2/
+  day3/
+  day4/
+  day5/
 
 data/
   day3_results.json
+  day5_error_report.json
 ```
