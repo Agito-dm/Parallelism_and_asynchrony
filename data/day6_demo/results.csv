@@ -1,0 +1,3 @@
+url,title,text,links,metadata,crawled_at,status_code,content_type
+https://example.com/,Main page,Main page Main page Hello from async crawler demo. About,"[""https://example.com/about""]","{""title"": ""Main page"", ""description"": ""Demo crawler page"", ""keywords"": """"}",2026-06-21T05:25:13.315213+00:00,200,text/html
+https://example.com/about,About page,About page About This page is used to demonstrate async storage.,[],"{""title"": ""About page"", ""description"": """", ""keywords"": """"}",2026-06-21T05:25:13.316213+00:00,200,text/html

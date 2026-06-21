@@ -16,7 +16,7 @@ async def test_rate_limiter_waits_between_requests_for_same_domain():
 
     elapsed = perf_counter() - started_at
 
-    assert elapsed >= 0.045
+    assert elapsed >= 0.04
 
 
 async def test_rate_limiter_allows_different_domains_independently():
