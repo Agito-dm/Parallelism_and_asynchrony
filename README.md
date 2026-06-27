@@ -7,12 +7,16 @@
 - Day 4 — rate limiting, robots.txt, crawl-delay, User-Agent, jitter, exponential backoff и мониторинг скорости
 - Day 5 — классификация ошибок, RetryStrategy, автоматические повторы, HTTP-статусы, таймауты, логирование и статистика ошибок
 - Day 6 — асинхронное сохранение данных в JSONL, CSV и SQLite, единый storage-интерфейс, batch-запись и обработка ошибок сохранения
+- Day 7 — финальный advanced crawler: конфигурация через JSON, sitemap.xml, расширенная статистика, JSON/HTML отчёты и CLI-запуск.
 
 
 
 ## Структура проекта
 
 ```text
+config/
+  day7_config.json
+
 src/
   crawler_day1/
     crawler.py
@@ -47,6 +51,16 @@ src/
     crawler.py
     storage.py
     demo.py
+  
+  crawler_day7/
+    config.py
+    crawler.py
+    sitemap.py
+    stats.py
+    reporting.py
+    logging_config.py
+    cli.py
+    demo.py
 
 tests/
   day1/
@@ -55,8 +69,11 @@ tests/
   day4/
   day5/
   day6/
+  day7/
 
 data/
+  day6_demo/
+  day7/
   day3_results.json
   day5_error_report.json
 ```
@@ -114,3 +131,11 @@ Demo шестого дня сохраняет результаты в:
 data/day6_demo/results.jsonl
 data/day6_demo/results.csv
 data/day6_demo/crawler.db
+
+
+# Day 7
+python -m crawler_day7.demo
+
+python -m crawler_day7.cli config/day7_config.json --json-report data/day7/report.json --html-report data/day7/report.html --max-pages 2 --no-progress
+
+python -m crawler_day7.cli --urls https://example.com --max-pages 2 --output data/day7/results.jsonl --json-report data/day7/direct_report.json --html-report data/day7/direct_report.html --no-progress

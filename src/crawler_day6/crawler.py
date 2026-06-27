@@ -53,8 +53,47 @@ class AsyncCrawler(BaseAsyncCrawler):
             return False
 
         return True
+    
+    def _get_response_metadata(self, url: str, page_data: dict) -> dict:
+        candidates = [
+            page_data.get("url"),
+            url,
+        ]
+
+        normalize_url = getattr(self, "_normalize_url", None)
+
+        if normalize_url is not None:
+            for candidate in list(candidates):
+                if candidate:
+                    candidates.append(normalize_url(candidate))
+
+        response_metadata = getattr(self, "_response_metadata", {})
+
+        for candidate in candidates:
+            if candidate and candidate in response_metadata:
+                return response_metadata[candidate]
+
+        return {}
 
     def _build_storage_data(self, url: str, page_data: dict) -> dict:
+        response_metadata = self._get_response_metadata(url, page_data)
+
+        status_code = page_data.get("status_code")
+
+        if status_code is None:
+            status_code = response_metadata.get("status_code")
+
+        if status_code is None:
+            status_code = 200
+
+        content_type = page_data.get("content_type")
+
+        if not content_type:
+            content_type = response_metadata.get("content_type")
+
+        if not content_type:
+            content_type = "text/html"
+
         storage_data = {
             "url": page_data.get("url") or url,
             "title": page_data.get("title", ""),
@@ -62,8 +101,8 @@ class AsyncCrawler(BaseAsyncCrawler):
             "links": page_data.get("links") or [],
             "metadata": page_data.get("metadata") or {},
             "crawled_at": page_data.get("crawled_at"),
-            "status_code": page_data.get("status_code", 200),
-            "content_type": page_data.get("content_type", "text/html"),
+            "status_code": status_code,
+            "content_type": content_type,
         }
 
         return normalize_storage_data(storage_data)

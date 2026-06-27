@@ -43,6 +43,8 @@ class AsyncCrawler(BaseAsyncCrawler):
         self.error_history: list[dict] = []
         self.permanent_error_urls: dict[str, str] = {}
 
+        self._response_metadata = {}
+
     def _classify_http_status(self, status: int, url: str) -> CrawlerError | None:
         if status in self.TRANSIENT_HTTP_STATUSES:
             return TransientError(
@@ -135,6 +137,21 @@ class AsyncCrawler(BaseAsyncCrawler):
                         raise classified_error
 
                     text = await response.text()
+
+                    response_headers = getattr(response, "headers", {})
+
+                    metadata = {
+                        "status_code": response.status,
+                        "content_type": response_headers.get("Content-Type", "text/html"),
+                    }
+
+                    self._response_metadata[url] = metadata
+
+                    normalize_url = getattr(self, "_normalize_url", None)
+
+                    if normalize_url is not None:
+                        normalized_url = normalize_url(url)
+                        self._response_metadata[normalized_url] = metadata
 
                     logger.info(
                         "Successfully loaded URL: %s | status=%s | bytes=%s",

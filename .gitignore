@@ -11,3 +11,19 @@ __pycache__/
 .env
 .DS_Store
 Thumbs.db
+
+# Runtime output
+logs/
+data/day6_demo/
+data/day7/
+data/day7_benchmark*.json
+data/day7_report*.json
+data/day7_report*.html
+data/day7_results.jsonl
+data/*benchmark*.json
+data/*report*.json
+data/*report*.html
+data/*.jsonl
+
+# Logs
+*.log

@@ -1,0 +1,21 @@
+{
+    "start_urls": [
+        "https://example.com"
+    ],
+    "sitemap_urls": [],
+    "max_pages": 10,
+    "max_depth": 1,
+    "max_concurrent": 5,
+    "rate_limit": 2.0,
+    "respect_robots": false,
+    "include_patterns": [],
+    "exclude_patterns": [],
+    "output": {
+        "type": "jsonl",
+        "filename": "data/day7_results.jsonl"
+    },
+    "logging": {
+        "level": "INFO",
+        "filename": "logs/crawler_day7.log"
+    }
+}

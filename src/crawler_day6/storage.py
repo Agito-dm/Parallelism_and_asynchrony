@@ -24,15 +24,27 @@ STORAGE_FIELDS = (
 )
 
 
-def normalize_storage_data(data: dict[str, Any]) -> dict[str, Any]:
+def normalize_crawled_at(value: Any) -> str:
+    if value is None:
+        return datetime.now(timezone.utc).isoformat()
+
+    if isinstance(value, datetime):
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=timezone.utc)
+
+        return value.isoformat()
+
+    return str(value)
+
+
+def normalize_storage_data(data: dict) -> dict[str, Any]:
     normalized = {
         "url": data.get("url", ""),
         "title": data.get("title", ""),
         "text": data.get("text", ""),
         "links": data.get("links") or [],
         "metadata": data.get("metadata") or {},
-        "crawled_at": data.get("crawled_at")
-        or datetime.now(timezone.utc).isoformat(),
+        "crawled_at": normalize_crawled_at(data.get("crawled_at")),
         "status_code": data.get("status_code"),
         "content_type": data.get("content_type", "text/html"),
     }
